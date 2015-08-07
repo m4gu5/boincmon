@@ -9,6 +9,19 @@ boincmon is a script which turns your Raspberry Pi with an attached Adafruit i2c
 * \# of uploading tasks
 * \# of downloading tasks
 
+Pics
+----
+#### Splash screen
+![alt tag](https://pbs.twimg.com/media/CL0OIyWWwAIeU6j.jpg)
+#### 5 running tasks
+![alt tag](https://pbs.twimg.com/media/CL0OI1NWoAABngj.jpg)
+#### host down
+![alt tag](https://pbs.twimg.com/media/CL0OIVMWwAEMB2s.jpg)
+#### 5 running, 9 uploading tasks
+![alt tag](https://pbs.twimg.com/media/CL0OI3hWwAAt_DS.jpg)
+#### 0 running, 9 uploading tasks
+![alt tag](https://pbs.twimg.com/media/CL0OPTdWgAArQh-.jpg)
+
 How
 ---
 boincmon uses a xml configuration file in which you can store your hosts to be monitored.
