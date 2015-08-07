@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hosts>
+	<!-- Insert your hosts here -->
+	<host name="&lt;your_alias&gt;">
+		<address>127.0.0.1</address>
+		<password></password>
+	</host>
+</hosts>
