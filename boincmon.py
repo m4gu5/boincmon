@@ -51,7 +51,7 @@ def show_splash():
     lcd.message(PROGRAM_BANNER + NEWLINE + 'Happy Crunching!')
 
 def get_boinc_hosts(filename):
-    """Parses the xml file containing the host definitions and returns the hosts in the following format: {hostname, [address, password]}.
+    """Parses the xml file containing the host definitions and returns the hosts in the following format: {hostname : {'address' : address, 'password' : password, 'optimum_task_count' : optimum_task_count}}.
     :param filename: The name of the file which contains the host definitions.
     """
     hosts_dict = {}
@@ -64,6 +64,10 @@ def get_boinc_hosts(filename):
         except AttributeError:
             # Some child could not be found
             continue
+        try:
+            optimum_task_count = host.find('optimum_task_count').text
+        except AttributeError:
+            optimum_task_count = -1
 
         errors_occured = False
 
@@ -72,7 +76,12 @@ def get_boinc_hosts(filename):
             continue
         name = address if name == None else name
         password = '' if password == None else password
-        hosts_dict[name] = [address, password]
+
+        host_config = {}
+        host_config['address'] = address
+        host_config['password'] = password
+        host_config['optimum_task_count'] = int(optimum_task_count)
+        hosts_dict[name] = host_config
     return hosts_dict
 
 def is_host_reachable(address):
@@ -130,27 +139,31 @@ def create_host_info_line(running_count, upload_count, download_count):
     :param upload_count: The number of uploading tasks.
     :param download_count: The number of downloading tasks.
     """
-    running_count_str = str(running_count) if running_count != None else SKULL_CHAR
-    upload_count_str = str(upload_count) if upload_count != None else SKULL_CHAR
-    download_count_str = str(download_count) if download_count != None else SKULL_CHAR
+    running_count_str = str(running_count) if running_count > -1 else SKULL_CHAR
+    upload_count_str = str(upload_count) if upload_count > -1 else SKULL_CHAR
+    download_count_str = str(download_count) if download_count > -1 else SKULL_CHAR
     host_info_line = RUNNING_GUY_CHAR + ' ' + running_count_str + '  '
     host_info_line += UPLOAD_CHAR + ' ' + upload_count_str + '  '
     host_info_line += DOWNLOAD_CHAR + ' ' + download_count_str + '  '
     return host_info_line
 
-def create_host_screen(hostname, boinc_active, active_tasks, uploading_tasks, downloading_tasks):
+def create_host_screen(hostname, active_tasks, uploading_tasks, downloading_tasks, optimum_task_count):
     """Displays the output for a host.
     :param hostname: The name of the host.
     :param boinc_active: Indicates if BOINC is running on the host.
     :param active_tasks: The number of active tasks.
     :param uploading_tasks: The number of uploading tasks.
     :param downloading_tasks: The number of downloading tasks.
+    :param optimum_task_count: The number of tasks which should normally run simultaneously.
     """
     status_icon = SAD_FACE_CHAR
     lcd.clear()
-    if boinc_active:
+    if active_tasks > 0:
         status_icon = SMILING_FACE_CHAR
-        lcd.set_color(0.0, 1.0, 0.0)
+        if active_tasks >= optimum_task_count:
+            lcd.set_color(0.0, 1.0, 0.0)
+        else:
+            lcd.set_color(1.0, 1.0, 0.0)
     else:
         lcd.set_color(1.0, 0.0, 0.0)
     lcd.message(create_hostname_line(hostname, status_icon) + NEWLINE + create_host_info_line(active_tasks, uploading_tasks, downloading_tasks))
@@ -182,24 +195,21 @@ while True:
         lcd.message(PROGRAM_BANNER + NEWLINE + 'No hosts found ' + SAD_FACE_CHAR)
         time.sleep(GET_HOSTS_RETRY_INTERVAL)
         continue
-    for hostname, addrpw in hosts.iteritems():
-        address = addrpw[0]
-        password = addrpw[1] 
+    for hostname, host_config in hosts.iteritems():
+        address = host_config.get('address')
+        password = host_config.get('password')
+        optimum_task_count = host_config.get('optimum_task_count')
 
-        boinc_active = False
-
-        active_tasks = None
-        uploading_tasks = None
-        downloading_tasks = None
+        active_tasks = -1
+        uploading_tasks = -1
+        downloading_tasks = -1
 
         if is_host_reachable(address):
             tasks = get_tasks(address, password)
             active_tasks = get_number_of_active_tasks(tasks)
             uploading_tasks = get_number_of_uploading_tasks(tasks)
             downloading_tasks = get_number_of_downloading_tasks(tasks)
-            if active_tasks > 0:
-                boinc_active = True
         elif skip_offline:
             continue
-        create_host_screen(hostname, boinc_active, active_tasks, uploading_tasks, downloading_tasks)
+        create_host_screen(hostname, active_tasks, uploading_tasks, downloading_tasks, optimum_task_count)
         time.sleep(interval)

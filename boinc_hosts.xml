@@ -2,7 +2,13 @@
 <hosts>
 	<!-- Insert your hosts here -->
 	<host name="&lt;your_alias&gt;">
+		<!-- IP Address -->
 		<address>127.0.0.1</address>
+		<!-- Password defined in gui_rpc_auth.cfg. Leave empty if no password was set. -->
 		<password></password>
+                <!-- Number of tasks which are expected to run simultaneously on this host. -->
+		<!-- This is usually the number of threads the CPU supports + 1 if there are running GPU tasks + 1 if you run WUProp -->
+		<!-- If fewer tasks run at any time the display color will change to yellow. -->
+                <optimum_task_count>4</optimum_task_count>
 	</host>
 </hosts>
