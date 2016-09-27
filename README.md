@@ -28,7 +28,8 @@ boincmon uses a xml configuration file in which you store your hosts to be monit
 The script then uses the boinccmd command to periodically query the hosts.
 
 To make things more clear, here is an example of a simple configuration file.
-```<?xml version="1.0" encoding="UTF-8"?>
+```
+<?xml version="1.0" encoding="UTF-8"?>
 <hosts>
 	<!-- Insert your hosts here -->
 	<host name="&lt;your_alias&gt;">
